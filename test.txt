@@ -10,6 +10,6 @@ fix conflict between the github website and local laptop
 
 Some new modification.
 
-Try a new modification.
+I think I shouldn't make modification outside of the conflict part. (delete "Try a new modification.")
 
-Try a wrong way to fix conflict-local version.
+Fixed the conflict part, but also made modification outside of conflict part.
