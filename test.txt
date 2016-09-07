@@ -3,3 +3,5 @@ This is a test
 make a modification
 
 make 1 more modification
+
+want to do a change to test conflict
