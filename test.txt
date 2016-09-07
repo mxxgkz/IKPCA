@@ -12,4 +12,4 @@ Some new modification.
 
 Try a new modification.
 
-Try a wrong way to fix conflict.
+Try a wrong way to fix conflict-online version.
