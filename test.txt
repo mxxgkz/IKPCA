@@ -1,11 +1,13 @@
 This is a test
 
-make a modification.
-
 modification not at the end of file.
+
+Delete a modification.
 
 make 1 more modification
 
 fix conflict between the github website and local laptop
 
 Some new modification.
+
+Try a new modification.
