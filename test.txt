@@ -1,7 +1,11 @@
 This is a test
 
-make a modification
+make a modification.
+
+modification not at the end of file.
 
 make 1 more modification
 
 fix conflict between the github website and local laptop
+
+Some new modification.
