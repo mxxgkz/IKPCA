@@ -4,4 +4,4 @@ make a modification
 
 make 1 more modification
 
-test a conflict, this is a modification on local laptop
+fix conflict between the github website and local laptop
