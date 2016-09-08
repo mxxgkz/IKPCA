@@ -21,8 +21,8 @@ function [options] = ini_options()
 % options.max_iter: maximum iteration number
 %%
 % Parameters for generating data
-    options.N = 400; %Number of data points 
-    options.l = 15;
+    options.N = 200; %Number of data points 
+    options.l = 8;
     options.p = 2; %Dimension of variation sources
     options.sigma_data = 10;
     options.sigma_nois = 0.0; %Standard Variation of noise

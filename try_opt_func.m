@@ -55,8 +55,9 @@ X = generate_Gaussian_profile(Z*l,N,sigma_data,l);
 sigma_alg = options.sigma_alg;
 a = ones(n,1);
 K_true = Gaussian_Kernel(Z,sigma_alg);
+B = X'-a*ones(1,N);
 
-% A_true = (X'-a*ones(1,N))/K_true;
+% A_true = B/K_true;
 % In calculation, I found that the K_true is close to singular, so that I
 % need to use regularized least-square
 
@@ -67,7 +68,7 @@ lambda = 10.^(-20:-1);
 err = zeros(1,length(lambda));
 for i = 1:length(lambda)
     A_MAP = ((lambda(i)*eye(N)+K_true*K_true)\K_true*(X-ones(N,1)*a'))';
-    err(i) = sum(sum((X'-a*ones(1,N)-A_MAP*K_true).^2))/n/N;
+    err(i) = sum(sum((B-A_MAP*K_true).^2))/n/N;
     i
 end
 
@@ -75,6 +76,28 @@ end
 % 11st lambda and use that to approximately calculate true coefficient
 % matrix A.
 
-A_app = ((lambda(11)*eye(N)+K_true*K_true)\K_true*(X-ones(N,1)*a'))';
+A_app = ((lambda(11)*eye(N)+K_true*K_true)\K_true*B')';
 
+% options_optim = optimoptions('fminunc','Algorithm','trust-region','SpecifyObjectiveGradient',true);
+% problem.options = options_optim;
+% problem.x0 = rand(N,p);
+% problem.objective = @(Z)cost_func(Z,A_app,B,sigma_alg);
+% problem.solver = 'fminunc';
 
+% flag == 1: trust-region
+% flag == 2: quasi-newton
+
+flag = 2;
+if flag == 1
+    options_optim = optimoptions(@fminunc,'Display','iter-detailed','Algorithm','trust-region','SpecifyObjectiveGradient',true);
+    fun = @(Z)cost_func(Z,A_app,B,sigma_alg);
+    x0 = rand(1,N*p);
+    [Z_est,fval,exitflag,output] = fminunc(fun,x0,options_optim);
+    Z_est_m = reshape(Z_est,[p,N])';
+else
+    options_optim = optimoptions(@fminunc,'Display','iter-detailed','Algorithm','quasi-newton','SpecifyObjectiveGradient',true);
+    fun = @(Z)cost_func(Z,A_app,B,sigma_alg);
+    x0 = rand(1,N*p);
+    [Z_est,fval,exitflag,output] = fminunc(fun,x0,options_optim);
+    Z_est_m = reshape(Z_est,[p,N])';
+end
