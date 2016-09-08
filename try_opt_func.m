@@ -84,20 +84,33 @@ A_app = ((lambda(11)*eye(N)+K_true*K_true)\K_true*B')';
 % problem.objective = @(Z)cost_func(Z,A_app,B,sigma_alg);
 % problem.solver = 'fminunc';
 
-% flag == 1: trust-region
-% flag == 2: quasi-newton
+% flag == 2: trust-region
+% flag == 1: quasi-newton
 
 flag = 2;
-if flag == 1
+if flag == 2
     options_optim = optimoptions(@fminunc,'Display','iter-detailed','Algorithm','trust-region','SpecifyObjectiveGradient',true);
     fun = @(Z)cost_func(Z,A_app,B,sigma_alg);
-    x0 = rand(1,N*p);
-    [Z_est,fval,exitflag,output] = fminunc(fun,x0,options_optim);
+    Z0 = reshape(Z',[1,N*p]);;
+    [Z_est,fval,exitflag,output] = fminunc(fun,Z0,options_optim);
     Z_est_m = reshape(Z_est,[p,N])';
+    title_text2 = 'Estimate variaton sources, Z, by trust-region, Z_0 = Z';
 else
     options_optim = optimoptions(@fminunc,'Display','iter-detailed','Algorithm','quasi-newton','SpecifyObjectiveGradient',true);
     fun = @(Z)cost_func(Z,A_app,B,sigma_alg);
-    x0 = rand(1,N*p);
-    [Z_est,fval,exitflag,output] = fminunc(fun,x0,options_optim);
+    Z0 = reshape(Z',[1,N*p]);
+    [Z_est,fval,exitflag,output] = fminunc(fun,Z0,options_optim);
     Z_est_m = reshape(Z_est,[p,N])';
+    title_text2 = 'Estimate variaton sources, Z, by quasi-netwon, Z_0 = Z';
 end
+
+
+if scat_func_tag == 1
+    tag = 0; %tag for showing index of data in 2d scatter plot (0: not showing)
+    scatter_label2d_func(Z_est_m,title_text2,dd,tag,psize,color) %Plot scatter plot of Z
+elseif scat_func_tag == 2
+    tag = 1;
+    scatter_label2d_func(Z_est_m,title_text2,dd,tag,psize,color,c) %Plot scatter plot of Z
+end
+saveas(gca,[options.cwd,['2-0']],'jpg');
+saveas(gca,[options.cwd,['2-0']],'fig');

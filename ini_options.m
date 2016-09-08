@@ -33,7 +33,7 @@ function [options] = ini_options()
     options.esp = 1e-4; %Tolerance for convergence
 
 % Parameters for storing and plotting data
-    options.cwd = '/Users/kungangzhang/Documents/OneDrive/Northwestern/Study/Courses/Independent Study/20160831-Solve-prob-init-X-opt-alg/figures/';
+    options.cwd = '/Users/kungangzhang/Documents/OneDrive/Northwestern/Study/Courses/Independent Study/20160907-Implement-5-step-alg/figures/';
     options.pct = 0.9999; %the percentage of threhold eigen-values
     options.pc1 = 1; %The index of the first component to be plotted
     options.pc2 = 2;
@@ -41,6 +41,6 @@ function [options] = ini_options()
     options.az = 30;
     options.el = 25;
     options.dd = 0.02;
-    options.psize = 10;
+    options.psize = 30;
         
 end
