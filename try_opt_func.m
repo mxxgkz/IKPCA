@@ -5,7 +5,7 @@
 %find out the variation sources to see if it can return the correct
 %answers.
 
-%%
+%% Generate Data
 % Initialize parameters
 options = ini_options();
 
@@ -13,7 +13,7 @@ options = ini_options();
 rngn = 2;
 rng(rngn); %Set seed for random generator
 
-%Generate random (p-dimensional) z's which are sources of variation
+% Generate random (p-dimensional) z's which are sources of variation
 N = options.N; %Number of data points 
 p = options.p; %Dimension of variation sources
 dd = options.dd;
@@ -51,6 +51,44 @@ l = options.l;
 n = (l+1)^2;
 X = generate_Gaussian_profile(Z*l,N,sigma_data,l);
 
+%Plot PCA score to see if there is any nonlinear pattern in the generated
+%observed data
+pct = options.pct; %the percentage of threhold eigen-values
+pc1 = options.pc1; %The index of the first component to be plotted
+pc2 = options.pc2;
+pc3 = options.pc3;
+az = options.az;
+el = options.el;
+title_text2 = 'Principle components of';
+color_3D = [0.7*ones(N,1),Z(:,1)/max(Z(:,1)),Z(:,2)/max(Z(:,2))];
+
+%Standardize each coordinates of X; in other words, for each column,
+%substract means and divide by unbiased standard deviation of that column
+std_X = std(X,0,1); 
+X_std = (X-repmat(mean(X,1),N,1))/diag(std_X);
+%X_std = X;
+
+%PCA on standardized observations
+title_text3 = 'Standardized version: Principle components of';
+[PC_std_ind,eig_values_std] = scatter_PCA_3d(X_std,pc1,pc2,pc3,pct,title_text3,color_3D,psize,az,el);
+
+%%Inverse KPCA
+%In svd (singular value decomposition, the singular values are sorted
+%in non-increasing order.
+[V,D,U] = svd(X_std/sqrt(N-1),'econ');
+%Principle components of X (PCA scores)
+PC_X = V*D(:,1:length(PC_std_ind));
+%The standardized observations doesn't have full column rank, so we
+%should pick out those columns of V that correspond to non-zero
+%singular values.
+
+%Plot 2-D scattering plot of first two coordinates obtained by PCA
+title_text_PCA = 'Principle components of observations X';
+scatter_label2d_func(PC_X(:,[1,2]),title_text_PCA,dd,tag,psize,color)
+saveas(gca,[options.cwd,['2-3']],'jpg');
+saveas(gca,[options.cwd,['2-3']],'fig');
+
+%% Estimate Variation Sources 
 % Given vector a, find true coefficient matrix A
 sigma_alg = options.sigma_alg;
 a = ones(n,1);
@@ -91,17 +129,21 @@ flag = 2;
 if flag == 2
     options_optim = optimoptions(@fminunc,'Display','iter-detailed','Algorithm','trust-region','SpecifyObjectiveGradient',true);
     fun = @(Z)cost_func(Z,A_app,B,sigma_alg);
-    Z0 = reshape(Z',[1,N*p]);;
+    Z0 = reshape(PC_X(:,[1,2])',[1,N*p]);
+    %Z0 = rand(1,N*p);
+    %Z0 = reshape(Z',[1,N*p]); % Reshape the initial N-by-p matrix Z into a row vector;
     [Z_est,fval,exitflag,output] = fminunc(fun,Z0,options_optim);
-    Z_est_m = reshape(Z_est,[p,N])';
-    title_text2 = 'Estimate variaton sources, Z, by trust-region, Z_0 = Z';
+    Z_est_m = reshape(Z_est,[p,N])'; % Reshape the row vector Z_est_m into a N-by-p matrix
+    title_text2 = 'Estimate variaton sources, Z, by trust-region, Z_0 = 2-D PCA Scores';
 else
-    options_optim = optimoptions(@fminunc,'Display','iter-detailed','Algorithm','quasi-newton','SpecifyObjectiveGradient',true);
+    options_optim = optimoptions(@fminunc,'Display','iter-detailed','Algorithm','quasi-newton','SpecifyObjectiveGradient',true,'MaxIterations',1000);
     fun = @(Z)cost_func(Z,A_app,B,sigma_alg);
-    Z0 = reshape(Z',[1,N*p]);
+    Z0 = reshape(PC_X(:,[1,2])',[1,N*p]);
+    %Z0 = rand(1,N*p);
+    %Z0 = reshape(Z',[1,N*p]);
     [Z_est,fval,exitflag,output] = fminunc(fun,Z0,options_optim);
     Z_est_m = reshape(Z_est,[p,N])';
-    title_text2 = 'Estimate variaton sources, Z, by quasi-netwon, Z_0 = Z';
+    title_text2 = 'Estimate variaton sources, Z, by quasi-netwon, Z_0 = 2-D PCA Scores';
 end
 
 
@@ -112,5 +154,5 @@ elseif scat_func_tag == 2
     tag = 1;
     scatter_label2d_func(Z_est_m,title_text2,dd,tag,psize,color,c) %Plot scatter plot of Z
 end
-saveas(gca,[options.cwd,['2-0']],'jpg');
-saveas(gca,[options.cwd,['2-0']],'fig');
+saveas(gca,[options.cwd,['2-4']],'jpg');
+saveas(gca,[options.cwd,['2-4']],'fig');
